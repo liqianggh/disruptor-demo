@@ -1,7 +1,9 @@
 package cn.mycookies.disruptor.high;
 
 import javafx.event.Event;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -12,7 +14,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @date 2019-07-23 22:52
  **/
 @Data
-public class TradeEvent extends Event {
+@NoArgsConstructor
+@AllArgsConstructor
+public class TradeEvent {
 
     private String id;
 
