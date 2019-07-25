@@ -5,9 +5,11 @@ import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
+import com.lmax.disruptor.dsl.EventHandlerGroup;
 import com.lmax.disruptor.dsl.ProducerType;
 
-import java.util.List;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.concurrent.*;
 
 /**
@@ -17,6 +19,8 @@ import java.util.concurrent.*;
 public class Main {
 
     public static void main(String[] args) throws InterruptedException {
+        Instant instant = Instant.now();
+
         // 用于提交任务的线程池
         ExecutorService es = Executors.newFixedThreadPool(10);
 
@@ -45,18 +49,29 @@ public class Main {
          * 并行执行
          * 2中写法
          */
-//      1.  disruptor.handleEventsWith(new TradeEventHandler(), new TradeEventHandler2(), new TradeEventHandler3(), new TradeEventHandler4());
-        disruptor.handleEventsWith(new TradeEventHandler());
-        disruptor.handleEventsWith(new TradeEventHandler2());
-        disruptor.handleEventsWith(new TradeEventHandler3());
-        disruptor.handleEventsWith(new TradeEventHandler4());
+//        disruptor.handleEventsWith(new TradeEventHandler(), new TradeEventHandler2(), new TradeEventHandler3(), new TradeEventHandler4());
 
+//      2.  disruptor.handleEventsWith(new TradeEventHandler());
+//        disruptor.handleEventsWith(new TradeEventHandler2());
+//        disruptor.handleEventsWith(new TradeEventHandler3());
+//        disruptor.handleEventsWith(new TradeEventHandler4());
+
+        /**
+         * 菱形执行
+         */
+//        1.disruptor
+//                .handleEventsWith(new TradeEventHandler(), new TradeEventHandler2())
+//                .handleEventsWith(new TradeEventHandler3());
+        EventHandlerGroup<TradeEvent> group =disruptor.handleEventsWith(new TradeEventHandler(), new TradeEventHandler2());
+        group.then(new TradeEventHandler3());
         disruptor.start();
         es.submit(new TradeEventPublisher(disruptor, countDownLatch));
 
         countDownLatch.await();
         es.shutdown();
         disruptor.shutdown();
+        Instant instant2 = Instant.now();
 
+        System.out.println(Duration.between(instant,instant2).getNano());
     }
 }
