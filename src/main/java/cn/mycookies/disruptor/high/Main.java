@@ -33,15 +33,28 @@ public class Main {
 
         Disruptor<TradeEvent> disruptor = new Disruptor<TradeEvent>(tradeEventEventFactory, ringBufferSize, threadPoolExecutor, producerType, waitStrategy);
         CountDownLatch countDownLatch = new CountDownLatch(1);
-
-        disruptor.handleEventsWith(new TradeEventHandler(), (EventHandler<? super TradeEvent>) new TradeEventHandler2());
-
+        /**
+         * 串行执行
+         */
+//        disruptor
+//                .handleEventsWith(new TradeEventHandler())
+//                .handleEventsWith(new TradeEventHandler2())
+//                .handleEventsWith(new TradeEventHandler3())
+//                .handleEventsWith(new TradeEventHandler4());
+        /**
+         * 并行执行
+         * 2中写法
+         */
+//      1.  disruptor.handleEventsWith(new TradeEventHandler(), new TradeEventHandler2(), new TradeEventHandler3(), new TradeEventHandler4());
+        disruptor.handleEventsWith(new TradeEventHandler());
+        disruptor.handleEventsWith(new TradeEventHandler2());
+        disruptor.handleEventsWith(new TradeEventHandler3());
+        disruptor.handleEventsWith(new TradeEventHandler4());
 
         disruptor.start();
         es.submit(new TradeEventPublisher(disruptor, countDownLatch));
 
         countDownLatch.await();
-
         es.shutdown();
         disruptor.shutdown();
 
