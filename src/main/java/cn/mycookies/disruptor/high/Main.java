@@ -2,10 +2,8 @@ package cn.mycookies.disruptor.high;
 
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.EventFactory;
-import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.WaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
-import com.lmax.disruptor.dsl.EventHandlerGroup;
 import com.lmax.disruptor.dsl.ProducerType;
 
 import java.time.Duration;
@@ -26,7 +24,7 @@ public class Main {
 
         // 1. 生产任务的工厂
         EventFactory<TradeEvent> tradeEventEventFactory = new TradeEventFactory();
-        // 2. 执行任务的线程池
+        // 2. 执行任务的线程池【不能小于handler数量 】
         ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(10, 100, 6000, TimeUnit.SECONDS, new ArrayBlockingQueue<>(100));
         // 3. 生产者类型，single or multi
         ProducerType producerType = ProducerType.SINGLE;
@@ -62,8 +60,21 @@ public class Main {
 //        1.disruptor
 //                .handleEventsWith(new TradeEventHandler(), new TradeEventHandler2())
 //                .handleEventsWith(new TradeEventHandler3());
-        EventHandlerGroup<TradeEvent> group =disruptor.handleEventsWith(new TradeEventHandler(), new TradeEventHandler2());
-        group.then(new TradeEventHandler3());
+
+//        EventHandlerGroup<TradeEvent> group =disruptor.handleEventsWith(new TradeEventHandler(), new TradeEventHandler2());
+//        group.then(new TradeEventHandler3());
+
+        /**
+         * 其他
+         */
+        TradeEventHandler tradeEventHandler = new TradeEventHandler();
+        TradeEventHandler2 tradeEventHandler2 = new TradeEventHandler2();
+        TradeEventHandler3 tradeEventHandler3 = new TradeEventHandler3();
+        TradeEventHandler4 tradeEventHandler4 = new TradeEventHandler4();
+        disruptor.handleEventsWith(tradeEventHandler, tradeEventHandler2);
+        disruptor.after(tradeEventHandler2).handleEventsWith(tradeEventHandler3);
+        disruptor.after(tradeEventHandler3).handleEventsWith(tradeEventHandler4);
+
         disruptor.start();
         es.submit(new TradeEventPublisher(disruptor, countDownLatch));
 
