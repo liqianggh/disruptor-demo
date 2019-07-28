@@ -1,7 +1,6 @@
-package cn.mycookies.disruptor.high;
+package cn.mycookies.disruptor.high.chain;
 
 import com.lmax.disruptor.EventTranslator;
-import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.dsl.Disruptor;
 import org.springframework.beans.BeanUtils;
 

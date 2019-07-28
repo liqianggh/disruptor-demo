@@ -1,4 +1,4 @@
-package cn.mycookies.disruptor.high;
+package cn.mycookies.disruptor.high.chain;
 
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.WorkHandler;

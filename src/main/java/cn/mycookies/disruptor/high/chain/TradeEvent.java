@@ -1,4 +1,4 @@
-package cn.mycookies.disruptor.high;
+package cn.mycookies.disruptor.high.chain;
 
 import javafx.event.Event;
 import lombok.AllArgsConstructor;
